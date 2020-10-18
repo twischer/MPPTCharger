@@ -1,3 +1,6 @@
+#ifndef __ADCREADER_HPP__
+#define __ADCREADER_HPP__
+
 #include <stdint.h>
 #include <assert.h>
 #include <Filters.h>
@@ -35,6 +38,15 @@ private:
 
 	ADCFilter values[ADC_MAX];
 	uint8_t nextChannel;
+
+protected:
+	typedef struct {
+		int16_t offset;
+		float gain;
+	} adc2unit_t;
+
+	static const adc2unit_t adc2unit[ADC_MAX];
+
 public:
 	ADCReader() : nextChannel(0) {
 		assert(ADC_MAX < ADC_CH_SEL_MASK);
@@ -45,9 +57,16 @@ public:
 		}
 	}
 
-	void update();
+	bool update();
 
 	uint16_t get(ADC_CHANNEL channel) {
 		return values[channel].get();
 	}
+
+	float getInUnit(ADC_CHANNEL channel) {
+		return get(channel) * adc2unit[channel].gain;
+	}
 };
+
+#endif /* __ADCREADER_HPP__ */
+
