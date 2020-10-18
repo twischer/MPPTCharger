@@ -4,13 +4,16 @@
 #include <WiFi.h>
 #endif
 
-#include <sigma_delta.h>
 #include <TelnetStream2.h>
 #include <WiFiManager.h>
 #include "ADCReader.hpp"
+#include "MPPT.hpp"
 
 static const float ADC_VOLTAGE_OUT_MAX = 42.0;
 ADCReader adcs;
+
+/* GPIO12 is connected to dead time control of TL494 */
+MPPT mppt(12);
 
 void setup()
 {
@@ -19,11 +22,6 @@ void setup()
 	wifiManager.autoConnect();
 
 	TelnetStream2.begin();
-
-	sigmaDeltaSetup(0, 312500);
-	sigmaDeltaWrite(0, 255);
-	/* GPIO12 is connected to dead time control of TL494 */
-	sigmaDeltaAttachPin(0, 12);
 }
 
 void log()
@@ -85,8 +83,10 @@ void loop()
 	static unsigned long next = millis();
 	if (millis() > next) {
 		next += 500;
-		adcs.update();
-		log();
+		if (adcs.update()) {
+			mppt.update(adcs.get(ADC_VOLTAGE_IN), 0); // TODO
+			log();
+		}
 	}
 }
 
