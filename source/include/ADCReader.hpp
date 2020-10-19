@@ -41,8 +41,8 @@ private:
 
 protected:
 	typedef struct {
-		int16_t offset;
-		float gain;
+		const int16_t offset;
+		const float gain;
 	} adc2unit_t;
 
 	static const adc2unit_t adc2unit[ADC_MAX];
@@ -59,11 +59,11 @@ public:
 
 	bool update();
 
-	uint16_t get(ADC_CHANNEL channel) {
+	uint16_t get(const uint8_t channel) {
 		return values[channel].get();
 	}
 
-	float getInUnit(ADC_CHANNEL channel) {
+	float getInUnit(const uint8_t channel) {
 		return get(channel) * adc2unit[channel].gain;
 	}
 };

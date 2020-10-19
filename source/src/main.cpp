@@ -6,11 +6,11 @@
 
 #include <TelnetStream2.h>
 #include <WiFiManager.h>
-#include "ADCReader.hpp"
+#include "ADCCalc.hpp"
 #include "MPPT.hpp"
 
 static const float ADC_VOLTAGE_OUT_MAX = 42.0;
-ADCReader adcs;
+ADCCalc adcs;
 
 /* GPIO12 is connected to dead time control of TL494 */
 MPPT mppt(12);
@@ -31,25 +31,23 @@ void log()
 
 	TelnetStream2.println("ESP8266 MPPT Charger");
 	TelnetStream2.printf("Uin:\t");
-	const float uin = adcs.get(ADC_VOLTAGE_IN);
-	TelnetStream2.print(uin);
+	TelnetStream2.print(adcs.getInUnit(ADC_VOLTAGE_IN));
 	TelnetStream2.println("V");
 
 	TelnetStream2.print("Iin:\t");
-	const float iin = adcs.get(ADC_CURRENT_IN);
-	TelnetStream2.print(iin);
+	TelnetStream2.print(adcs.getInUnit(ADC_CURRENT_IN));
 	TelnetStream2.println("A");
 
 	TelnetStream2.print("Pin:\t");
-	TelnetStream2.print(uin * iin);
+	TelnetStream2.print(adcs.getInUnit(ADC_POWER_IN));
 	TelnetStream2.println("W");
 
 	TelnetStream2.print("Ein:\t");
-	TelnetStream2.print(uin * iin * 0.5);
+	TelnetStream2.print(adcs.getInUnit(ADC_ENERGY_IN));
 	TelnetStream2.println("Wh");
 
 	TelnetStream2.print("Uout:\t");
-	const float uout = adcs.get(ADC_VOLTAGE_OUT);
+	const float uout = adcs.getInUnit(ADC_VOLTAGE_OUT);
 	TelnetStream2.print(uout);
 	TelnetStream2.print("V ");
 	TelnetStream2.print(uout * 100 / ADC_VOLTAGE_OUT_MAX);
@@ -84,7 +82,7 @@ void loop()
 	if (millis() > next) {
 		next += 500;
 		if (adcs.update()) {
-			mppt.update(adcs.get(ADC_VOLTAGE_IN), 0); // TODO
+			mppt.update(adcs.get(ADC_VOLTAGE_IN), adcs.get(ADC_POWER_IN));
 			log();
 		}
 	}
