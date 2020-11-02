@@ -6,6 +6,7 @@
 
 class MPPT {
 private:
+	static const uint8_t SIGMA_DELTA_CHANNEL = 0;
 	static const uint8_t maxPWM = 0xFF;
 
 	uint8_t outPin;
@@ -17,10 +18,10 @@ private:
 
 public:
 	MPPT(const uint8_t outPin) : outPin(outPin), pwm(0), lastVoltage(0), lastPower(0) {
-		sigmaDeltaSetup(0, 312500);
+		sigmaDeltaSetup(SIGMA_DELTA_CHANNEL, 312500);
 		/* inverted logic: high value reduces PWM output voltage of TL494 */
-		sigmaDeltaWrite(0, maxPWM);
-		sigmaDeltaAttachPin(0, outPin);
+		sigmaDeltaWrite(SIGMA_DELTA_CHANNEL, maxPWM);
+		sigmaDeltaAttachPin(outPin, SIGMA_DELTA_CHANNEL);
 
 		update(0, 0);
 	}

@@ -13,10 +13,17 @@ static const float ADC_VOLTAGE_OUT_MAX = 42.0;
 ADCCalc adcs;
 
 /* GPIO12 is connected to dead time control of TL494 */
-MPPT mppt(12);
+const uint8_t TL494_DTC_PIN = 12;
+MPPT mppt(TL494_DTC_PIN);
 
 void setup()
 {
+	// TODO execute already before WiFi transceiver was enabled and Adroino initialized
+	// TODO ensure that it is executed before the constructor of MPPT
+	/* disable step up/down converter to keep initial solar power for ESP boot up */
+	//pinMode(TL494_DTC_PIN, OUTPUT);
+	//digitalWrite(TL494_DTC_PIN, HIGH);
+
 	Serial.begin(115200);
 	WiFiManager wifiManager;
 	wifiManager.autoConnect();
@@ -26,8 +33,12 @@ void setup()
 
 void log()
 {
+	// TODO only execute the following when a client is connected */
 	//if (!TelnetStream2.available())
 	//	return;
+
+	/* clear screen and move to home position */
+	TelnetStream2.print("\033[H\033[2J");
 
 	TelnetStream2.println("ESP8266 MPPT Charger");
 	TelnetStream2.printf("Uin:\t");
@@ -52,11 +63,6 @@ void log()
 	TelnetStream2.print("V ");
 	TelnetStream2.print(uout * 100 / ADC_VOLTAGE_OUT_MAX);
 	TelnetStream2.println("%");
-
-	/* move courser to the left */
-	TelnetStream2.print("\u001b[1000D");
-	/* move courser to the top */
-	TelnetStream2.print("\u001b[6A");
 }
 
 void loop()

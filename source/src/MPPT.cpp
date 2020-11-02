@@ -37,7 +37,7 @@ void MPPT::update(const uint32_t voltage, const uint32_t power)
 		pwm += updateVal;
 
 	/* inverted logic */
-	sigmaDeltaWrite(0, maxPWM - pwm);
+	sigmaDeltaWrite(SIGMA_DELTA_CHANNEL, maxPWM - pwm);
 
 	lastVoltage = voltage;
 	lastPower = power;
