@@ -384,17 +384,6 @@ Wire Wire Line
 	3000 6700 2800 6700
 Wire Wire Line
 	4550 6750 5450 6750
-$Comp
-L Device:L_Small L1
-U 1 1 5F759E21
-P 5600 5100
-F 0 "L1" H 5648 5146 50  0000 L CNN
-F 1 "?µ" H 5648 5055 50  0000 L CNN
-F 2 "" H 5600 5100 50  0001 C CNN
-F 3 "~" H 5600 5100 50  0001 C CNN
-	1    5600 5100
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	2800 7000 2700 7000
 Wire Wire Line
@@ -468,8 +457,6 @@ Connection ~ 5950 5000
 Wire Wire Line
 	6200 5300 5950 5300
 Connection ~ 6200 5300
-Wire Wire Line
-	5600 5200 5600 5750
 Wire Wire Line
 	5600 5750 2700 5750
 Wire Wire Line
@@ -669,4 +656,17 @@ F 3 "~" H 650 1850 50  0001 C CNN
 	1    650  1850
 	-1   0    0    1   
 $EndComp
+$Comp
+L Device:R R9
+U 1 1 5FA1DA9B
+P 5600 5150
+F 0 "R9" H 5670 5196 50  0000 L CNN
+F 1 "1k2" H 5670 5105 50  0000 L CNN
+F 2 "Resistor_THT:R_Axial_DIN0309_L9.0mm_D3.2mm_P12.70mm_Horizontal" V 5530 5150 50  0001 C CNN
+F 3 "~" H 5600 5150 50  0001 C CNN
+	1    5600 5150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5600 5300 5600 5750
 $EndSCHEMATC
