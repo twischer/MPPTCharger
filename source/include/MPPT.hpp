@@ -18,7 +18,8 @@ private:
 
 public:
 	MPPT(const uint8_t outPin) : outPin(outPin), pwm(0), lastVoltage(0), lastPower(0) {
-		sigmaDeltaSetup(SIGMA_DELTA_CHANNEL, 312500);
+		/* do not use max of 312,5kHz due to ESP freezes near by 128 -> 40MHz */
+		sigmaDeltaSetup(SIGMA_DELTA_CHANNEL, 156250);
 		/* inverted logic: high value reduces PWM output voltage of TL494 */
 		sigmaDeltaWrite(SIGMA_DELTA_CHANNEL, maxPWM);
 		sigmaDeltaAttachPin(outPin, SIGMA_DELTA_CHANNEL);
