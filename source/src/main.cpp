@@ -9,6 +9,7 @@
 #include "ADCCalc.hpp"
 #include "MPPT.hpp"
 
+static const float ADC_VOLTAGE_OUT_MIN = 33.0;
 static const float ADC_VOLTAGE_OUT_MAX = 42.0;
 ADCCalc adcs;
 
@@ -61,8 +62,16 @@ void log()
 	const float uout = adcs.getInUnit(ADC_VOLTAGE_OUT);
 	TelnetStream2.print(uout);
 	TelnetStream2.print("V ");
-	TelnetStream2.print(uout * 100 / ADC_VOLTAGE_OUT_MAX);
+
+	static const float voltage2level = 100 / (ADC_VOLTAGE_OUT_MAX - ADC_VOLTAGE_OUT_MIN);
+	const float uoutBattStart = uout - ADC_VOLTAGE_OUT_MIN;
+	const float chargeLevel = (uoutBattStart > 0) ? (uoutBattStart * voltage2level) : 0.0;
+	TelnetStream2.print(chargeLevel);
 	TelnetStream2.println("%");
+
+	TelnetStream2.print("PWMout:\t");
+	TelnetStream2.print(mppt.getPwmLevel());
+	TelnetStream2.print("%");
 }
 
 void loop()
@@ -84,11 +93,22 @@ void loop()
 	}
 
 
-	static unsigned long next = millis();
-	if (millis() > next) {
-		next += 500;
+	static bool updateLog = false;
+	const unsigned long now = millis();
+	static unsigned long next = now;
+	if (next < now) {
+		next += 50;
 		if (adcs.update()) {
 			mppt.update(adcs.get(ADC_VOLTAGE_IN), adcs.get(ADC_POWER_IN));
+			updateLog = true;
+		}
+	}
+
+	static unsigned long nextLog = now;
+	if (nextLog < now) {
+		nextLog += 500;
+		if (updateLog) {
+			updateLog = false;
 			log();
 		}
 	}

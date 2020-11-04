@@ -27,6 +27,10 @@ public:
 	}
 
 	void update(const uint32_t voltage, const uint32_t power);
+
+	float getPwmLevel() {
+		return pwm * 100.0 / maxPWM;
+	}
 };
 
 #endif /* __MPPT_HPP__ */
