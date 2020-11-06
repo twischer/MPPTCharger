@@ -1,45 +1,30 @@
 #include "MPPT.hpp"
 
-int8_t MPPT::getPwmUpdate(const uint32_t voltage, const uint32_t power)
-{
-	static const uint8_t PWM_UPDATE_DIFF = 1;
-
-	/* See https://hackaday.io/project/4613/gallery */
-	if (power > lastPower) {
-		if (voltage > lastVoltage) {
-			/* voltage increases */
-			return PWM_UPDATE_DIFF;
-		} else {
-			/* current increases */
-			return -PWM_UPDATE_DIFF;
-		}
-	} else {
-		/* power decreses */
-		if (voltage > lastVoltage) {
-			/* current decresses */
-			return -PWM_UPDATE_DIFF;
-		} else {
-			/* voltage decresses */
-			return PWM_UPDATE_DIFF;
-		}
-	}
-}
-
 void MPPT::update(const uint32_t voltage, const uint32_t power)
 {
-	const int8_t updateVal = getPwmUpdate(voltage, power);
+	static const uint8_t PWM_UPDATE_DIFF = 1;
+	// TODO move to class
+	static bool increase = true;
 
-	if (pwm <= -updateVal)
-		pwm = 0;
-	else if ( pwm >= (maxPWM - updateVal) )
-		pwm = maxPWM;
+	if (pwm < PWM_UPDATE_DIFF)
+		increase = true;
+	// TODO use voltage value e.g. 10 V check what is reasonabel for TL494
+	// Use only bool input e.g. minVoltageExceeded
+	else if (voltage < 600 || pwm > (maxPWM - PWM_UPDATE_DIFF))
+		increase = false;
+	/* compensate ADC uncertainty */
+	else if ( (power + 10) < lastPower )
+		increase = !increase;
+
+	if (increase)
+		pwm += PWM_UPDATE_DIFF;
 	else
-		pwm += updateVal;
+		pwm -= PWM_UPDATE_DIFF;
 
 	/* inverted logic */
 	sigmaDeltaWrite(SIGMA_DELTA_CHANNEL, maxPWM - pwm);
 
-	lastVoltage = voltage;
+	lastVoltage = voltage; // TODO Not required any longer
 	lastPower = power;
 }
 

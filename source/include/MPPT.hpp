@@ -14,8 +14,6 @@ private:
 	uint32_t lastVoltage;
 	uint32_t lastPower;
 
-	int8_t getPwmUpdate(const uint32_t voltage, const uint32_t power);
-
 public:
 	MPPT(const uint8_t outPin) : outPin(outPin), pwm(0), lastVoltage(0), lastPower(0) {
 		/* do not use max of 312,5kHz due to ESP freezes near by 128 -> 40MHz */
