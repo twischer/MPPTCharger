@@ -43,12 +43,15 @@ PlatformioArduinoSTD = '~/.platformio/packages/toolchain-xtensa/xtensa-lx106-elf
 # Dirs in this list can be paths relative to this file, absolute
 # paths, or paths relative to the user (using ~/path/to/file).
 libDirs = [
-           "lib"
+           "include"
+           ,"lib"
            ,PlatformioAutogen
            ,PlatformioArduinoCore
            ,PlatformioArduinoLibs
            ,PlatformioArduinoSTD
            ,"~/.platformio/packages/framework-arduinoespressif8266/tools/sdk/include"
+           ,"~/.platformio/packages/framework-arduinoespressif8266/tools/sdk/libc/xtensa-lx106-elf/include"
+           ,"~/.platformio/packages/toolchain-xtensa/xtensa-lx106-elf/include/c++/4.8.2/xtensa-lx106-elf"
            ,".pio/libdeps/esp01"
            ]
 
@@ -114,9 +117,9 @@ def MakeRelativePathsInFlagsAbsolute( flags, working_directory ):
 
         for path, dirs, files in os.walk(libDir):
             # Add to flags if dir contains a header file and is not
-            # one of the metadata dirs (examples and extras). 
-            if any(IsHeaderFile(x) for x in files) and\
-              path.find("examples") is -1 and path.find("extras") is -1:
+            # one of the metadata dirs (examples and extras).
+#            if any(IsHeaderFile(x) for x in files) and\
+             if path.find("examples") is -1 and path.find("extras") is -1:
                 logger.debug("Directory contains header files - %s"%path)
                 flags.append('-I'+path)
 
