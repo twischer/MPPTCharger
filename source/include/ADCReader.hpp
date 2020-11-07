@@ -6,7 +6,6 @@
 #include <Filters.h>
 #include <Filters/MedianFilter.hpp>
 #include <Filters/SMA.hpp>
-#include "SimpleIIRFilter.hpp"
 
 enum ADC_CHANNEL {
 	ADC_CURRENT_IN,
@@ -25,23 +24,22 @@ private:
 	private:
 		MedianFilter<5, float> med;
 		SMA<8, float, float> sma;
-		SimpleIIRFilter<float, float> iir;
+		float value;
 	public:
-		ADCFilter() : med(0), sma(0), iir() {}
+		ADCFilter() : med(0.0), sma(0.0), value(0.0) {}
 
 		void update(float input) {
-			iir.update(sma(med(input)));
+			value = /*sma( med(*/input;//) );
 		}
 
 		float get() {
-			return iir.get();
+			return value;
 		}
 	};
 
 	ADCFilter values[ADC_MAX];
 	uint8_t nextChannel;
 
-protected:
 	typedef struct {
 		const float offset;
 		const float gain;
@@ -66,7 +64,7 @@ public:
 	}
 
 	float getInUnit(const uint8_t channel) {
-		return get(channel) * adc2unit[channel].gain;
+		return get(channel);
 	}
 };
 
