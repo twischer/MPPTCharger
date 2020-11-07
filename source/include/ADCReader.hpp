@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <Filters.h>
 #include <Filters/MedianFilter.hpp>
+#include <Filters/SMA.hpp>
 #include "SimpleIIRFilter.hpp"
 
 enum ADC_CHANNEL {
@@ -23,12 +24,13 @@ private:
 	class ADCFilter {
 	private:
 		MedianFilter<5, uint16_t> med;
+		SMA<8> sma;
 		SimpleIIRFilter<uint16_t, uint32_t> iir;
 	public:
-		ADCFilter() : med(0), iir() {}
+		ADCFilter() : med(0), sma(0), iir() {}
 
 		void update(uint16_t input) {
-			iir.update(med(input));
+			iir.update(sma(med(input)));
 		}
 
 		uint16_t get() {
