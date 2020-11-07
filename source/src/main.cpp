@@ -93,24 +93,22 @@ void loop()
 	}
 
 
-	static bool updateLog = false;
 	const unsigned long now = millis();
 	static unsigned long next = now;
+	static uint8_t counter = 0;
 	if (next < now) {
 		next += 50;
 		if (adcs.update()) {
-			mppt.update(adcs.get(ADC_VOLTAGE_IN), adcs.get(ADC_POWER_IN));
-			updateLog = true;
+			/* wait for averaging */
+			if (counter > 16) {
+				counter = 0;
+				mppt.update(adcs.get(ADC_VOLTAGE_IN), adcs.get(ADC_POWER_IN));
+				/* print values when desition was made */
+				log();
+			}
+			counter++;
 		}
 	}
 
-	static unsigned long nextLog = now;
-	if (nextLog < now) {
-		nextLog += 500;
-		if (updateLog) {
-			updateLog = false;
-			log();
-		}
-	}
 }
 
