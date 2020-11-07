@@ -30,12 +30,12 @@ public:
 	SimpleIIRFilter() : lastResultFixPoint(0) {}
 
 	T get() {
-		const T result = lastResultFixPoint >> FIXPOINT_DOT;
+		const T result = lastResultFixPoint; //>> FIXPOINT_DOT;
 		return result;
 	}
 
 	void update(T input) {
-		const I valueFixPoint = (I)(input) << FIXPOINT_DOT;
+		const I valueFixPoint = (I)(input); //<< FIXPOINT_DOT;
 
 //		const I diffFixPoint =
 //			(valueFixPoint - lastResultFixPoint) / COEFFICIENT;

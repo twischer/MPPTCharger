@@ -23,17 +23,17 @@ class ADCReader {
 private:
 	class ADCFilter {
 	private:
-		MedianFilter<5, uint16_t> med;
-		SMA<8> sma;
-		SimpleIIRFilter<uint16_t, uint32_t> iir;
+		MedianFilter<5, float> med;
+		SMA<8, float, float> sma;
+		SimpleIIRFilter<float, float> iir;
 	public:
 		ADCFilter() : med(0), sma(0), iir() {}
 
-		void update(uint16_t input) {
+		void update(float input) {
 			iir.update(sma(med(input)));
 		}
 
-		uint16_t get() {
+		float get() {
 			return iir.get();
 		}
 	};
@@ -43,7 +43,7 @@ private:
 
 protected:
 	typedef struct {
-		const int16_t offset;
+		const float offset;
 		const float gain;
 	} adc2unit_t;
 
@@ -61,7 +61,7 @@ public:
 
 	bool update();
 
-	uint16_t get(const uint8_t channel) {
+	float get(const uint8_t channel) {
 		return values[channel].get();
 	}
 
