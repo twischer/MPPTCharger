@@ -25,7 +25,7 @@ public:
 		update(0, 0);
 	}
 
-	void update(const uint32_t voltage, const uint32_t power);
+	void update(const float voltage, const float power);
 
 	float getPwmLevel() {
 		return pwm * 100.0 / maxPWM;

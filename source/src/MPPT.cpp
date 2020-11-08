@@ -1,20 +1,17 @@
 #include "MPPT.hpp"
 
-void MPPT::update(const uint32_t voltage, const uint32_t power)
+void MPPT::update(const float voltage, const float power)
 {
 	static const uint8_t PWM_UPDATE_DIFF = 1;
 	// TODO move to class
 	static bool increase = true;
 
-	// TODO use voltage value e.g. 10 V check what is reasonabel for TL494
-	// Use only bool input e.g. minVoltageExceeded
-	if (voltage < 600 || pwm > (maxPWM - PWM_UPDATE_DIFF))
+	if (voltage < 10.0 || pwm > (maxPWM - PWM_UPDATE_DIFF))
 		increase = false;
 	else if (pwm < PWM_UPDATE_DIFF)
 		increase = true;
-	/* compensate ADC uncertainty */
-	// circa 1W bzw vielleicht prozentual
-	else if ( (power + 10) < lastPower) {
+	/* compensate ADC uncertainty. TODO Search for diff >15% */
+	else if ( (power + 1.5) < lastPower) {
 		increase = !increase;
 		lastPower = power;
 	} else if (power > lastPower)
@@ -32,7 +29,5 @@ void MPPT::update(const uint32_t voltage, const uint32_t power)
 
 	/* inverted logic */
 	sigmaDeltaWrite(SIGMA_DELTA_CHANNEL, maxPWM - pwm);
-
-	lastVoltage = voltage; // TODO Not required any longer
 }
 
