@@ -70,8 +70,16 @@ void log()
 	TelnetStream2.println("%");
 
 	TelnetStream2.print("PWMout:\t");
-	TelnetStream2.print(mppt.getPwmLevel());
-	TelnetStream2.print("%");
+	const float pwm = mppt.getPwmLevel();
+	TelnetStream2.print(pwm);
+	TelnetStream2.print("% ");
+
+	static float lastPWM = 0.0;
+	if (pwm > lastPWM)
+		TelnetStream2.println("u");
+	else
+		TelnetStream2.println("d");
+	lastPWM = pwm;
 }
 
 void loop()
@@ -97,7 +105,7 @@ void loop()
 	static unsigned long next = now;
 	static uint8_t counter = 0;
 	if (next < now) {
-		next += 40;
+		next += 30;
 		if (adcs.update()) {
 			/* wait for averaging */
 			if (counter > 10) {
