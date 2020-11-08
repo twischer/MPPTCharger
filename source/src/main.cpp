@@ -6,11 +6,13 @@
 
 #include <TelnetStream2.h>
 #include <WiFiManager.h>
+#include "SoftwareWatchdog.h"
 #include "ADCCalc.hpp"
 #include "MPPT.hpp"
 
 static const float ADC_VOLTAGE_OUT_MIN = 33.0;
 static const float ADC_VOLTAGE_OUT_MAX = 42.0;
+SoftwareWatchdog swWatchdog;
 ADCCalc adcs;
 
 /* GPIO12 is connected to dead time control of TL494 */
@@ -115,6 +117,7 @@ void loop()
 				counter = 0;
 				/* print values when desition was made */
 				log();
+				swWatchdog.feed();
 			}
 			counter++;
 		}
