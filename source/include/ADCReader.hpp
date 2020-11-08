@@ -23,13 +23,13 @@ private:
 	class ADCFilter {
 	private:
 		MedianFilter<5, float> med;
-		SMA<8, float, float> sma;
+		SMA<48, float, float> sma;
 		float value;
 	public:
 		ADCFilter() : med(0.0), sma(0.0), value(0.0) {}
 
 		void update(float input) {
-			value = /*sma( med(*/input;//) );
+			value = sma( /*med(*/input);// );
 		}
 
 		float get() {
