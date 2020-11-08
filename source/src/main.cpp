@@ -105,12 +105,14 @@ void loop()
 	static unsigned long next = now;
 	static uint8_t counter = 0;
 	if (next < now) {
-		next += 30;
+		next += 50;
 		if (adcs.update()) {
 			/* wait for averaging */
-			if (counter > 10) {
-				counter = 0;
+			// TODO may be high diffs will only be craeted on a certain PWM level
+			// therefore avarage over multiple PWM levels
 				mppt.update(adcs.get(ADC_VOLTAGE_IN), adcs.get(ADC_POWER_IN));
+			if (counter > 2) {
+				counter = 0;
 				/* print values when desition was made */
 				log();
 			}
