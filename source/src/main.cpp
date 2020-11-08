@@ -4,6 +4,7 @@
 #include <WiFi.h>
 #endif
 
+#include <wiring_private.h>
 #include <TelnetStream2.h>
 #include <WiFiManager.h>
 #include "SoftwareWatchdog.h"
@@ -19,14 +20,18 @@ ADCCalc adcs;
 const uint8_t TL494_DTC_PIN = 12;
 MPPT mppt(TL494_DTC_PIN);
 
+
+RF_PRE_INIT() {
+	/* disable step up/down converter to keep initial solar power for ESP boot up */
+	digitalWrite(TL494_DTC_PIN, HIGH);
+	pinMode(TL494_DTC_PIN, OUTPUT);
+}
+
+/* do not reset GPIO pins between RF_PRE_INIT() and setup() */
+void resetPins() {}
+
 void setup()
 {
-	// TODO execute already before WiFi transceiver was enabled and Adroino initialized
-	// TODO ensure that it is executed before the constructor of MPPT
-	/* disable step up/down converter to keep initial solar power for ESP boot up */
-	//pinMode(TL494_DTC_PIN, OUTPUT);
-	//digitalWrite(TL494_DTC_PIN, HIGH);
-
 	Serial.begin(115200);
 	WiFiManager wifiManager;
 	wifiManager.autoConnect();
