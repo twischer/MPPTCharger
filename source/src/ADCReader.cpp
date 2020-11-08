@@ -1,4 +1,5 @@
 #include "ADCReader.hpp"
+#include <TelnetStream2.h>
 
 const ADCReader::adc2unit_t ADCReader::adc2unit[ADC_MAX] = {
 	[ADC_CURRENT_IN] = {
@@ -22,12 +23,15 @@ ADC_MODE(ADC_TOUT_3V3)
  */
 bool ADCReader::update()
 {
-	const float adc = analogRead(A0);
+	for (int i=0; i<16; i++) {
+		const float adc = analogRead(A0);
 
-	const adc2unit_t& a2u = adc2unit[nextChannel];
-	const float value = adc * a2u.gain + a2u.offset;
-	const float limitedValue = (value < 0.0) ? 0.0 : value;
-	values[nextChannel].update(limitedValue);
+		const adc2unit_t& a2u = adc2unit[nextChannel];
+		const float value = adc * a2u.gain + a2u.offset;
+		const float limitedValue = (value < 0.0) ? 0.0 : value;
+	//	TelnetStream2.println(limitedValue);
+		values[nextChannel].update(limitedValue);
+	}
 
 	nextChannel++;
 	if (nextChannel >= ADC_MAX)
