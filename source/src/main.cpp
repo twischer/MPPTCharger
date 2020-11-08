@@ -97,10 +97,10 @@ void loop()
 	static unsigned long next = now;
 	static uint8_t counter = 0;
 	if (next < now) {
-		next += 50;
+		next += 40;
 		if (adcs.update()) {
 			/* wait for averaging */
-			if (counter > 16) {
+			if (counter > 10) {
 				counter = 0;
 				mppt.update(adcs.get(ADC_VOLTAGE_IN), adcs.get(ADC_POWER_IN));
 				/* print values when desition was made */
