@@ -7,6 +7,7 @@
 #include <wiring_private.h>
 #include <TelnetStream2.h>
 #include <WiFiManager.h>
+#include <Adafruit_INA219.h>
 #include "SoftwareWatchdog.h"
 #include "ADCCalc.hpp"
 #include "MPPT.hpp"
@@ -14,11 +15,14 @@
 static const char AP_SSID[] = "MPPTCharger";
 static const char AP_PASSWORD[] = "zweiundvierzig";
 
+static const uint8_t INA219_SCL = 2;
+static const uint8_t INA219_SDA = 0;
+
 static const float ADC_VOLTAGE_OUT_MIN = 33.0;
 static const float ADC_VOLTAGE_OUT_MAX = 42.0;
 SoftwareWatchdog swWatchdog;
 ADCCalc adcs;
-
+Adafruit_INA219 ina219;
 /* GPIO12 is connected to dead time control of TL494 */
 const uint8_t TL494_DTC_PIN = 12;
 MPPT mppt(TL494_DTC_PIN);
@@ -44,6 +48,10 @@ void setup()
 	wifiManager.autoConnect(AP_SSID, AP_PASSWORD);
 	swWatchdog.feed();
 
+	Wire.begin(INA219_SDA, INA219_SCL);
+	ina219.begin();
+	ina219.setCalibration_32V_2A();
+
 	TelnetStream2.begin();
 }
 
@@ -58,15 +66,16 @@ void log()
 
 	TelnetStream2.println("ESP8266 MPPT Charger");
 	TelnetStream2.printf("Uin:\t");
-	TelnetStream2.print(adcs.get(ADC_VOLTAGE_IN));
+
+	TelnetStream2.print(ina219.getBusVoltage_V());
 	TelnetStream2.println("V");
 
 	TelnetStream2.print("Iin:\t");
-	TelnetStream2.print(adcs.get(ADC_CURRENT_IN));
+	TelnetStream2.print(ina219.getCurrent_mA() / 1000.0);
 	TelnetStream2.println("A");
 
 	TelnetStream2.print("Pin:\t");
-	TelnetStream2.print(adcs.get(ADC_POWER_IN));
+	TelnetStream2.print(ina219.getPower_mW() / 1000.0);
 	TelnetStream2.println("W");
 
 	TelnetStream2.print("Ein:\t");
@@ -131,7 +140,8 @@ void loop()
 			/* wait for averaging */
 			// TODO may be high diffs will only be craeted on a certain PWM level
 			// therefore avarage over multiple PWM levels
-				mppt.update(adcs.get(ADC_VOLTAGE_IN), adcs.get(ADC_POWER_IN));
+				mppt.update(ina219.getBusVoltage_V(),
+					ina219.getPower_mW() / 1000.0);
 			if (counter > 2) {
 				counter = 0;
 				/* print values when desition was made */
