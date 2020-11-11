@@ -49,10 +49,6 @@ private:
 		} else
 			return 0;
 	}
-
-	float getInUnit(const uint8_t channel) {
-		return get(channel);
-	}
 };
 
 #endif /* __ADCCALC_HPP__ */

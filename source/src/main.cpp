@@ -58,23 +58,23 @@ void log()
 
 	TelnetStream2.println("ESP8266 MPPT Charger");
 	TelnetStream2.printf("Uin:\t");
-	TelnetStream2.print(adcs.getInUnit(ADC_VOLTAGE_IN));
+	TelnetStream2.print(adcs.get(ADC_VOLTAGE_IN));
 	TelnetStream2.println("V");
 
 	TelnetStream2.print("Iin:\t");
-	TelnetStream2.print(adcs.getInUnit(ADC_CURRENT_IN));
+	TelnetStream2.print(adcs.get(ADC_CURRENT_IN));
 	TelnetStream2.println("A");
 
 	TelnetStream2.print("Pin:\t");
-	TelnetStream2.print(adcs.getInUnit(ADC_POWER_IN));
+	TelnetStream2.print(adcs.get(ADC_POWER_IN));
 	TelnetStream2.println("W");
 
 	TelnetStream2.print("Ein:\t");
-	TelnetStream2.print(adcs.getInUnit(ADC_ENERGY_IN));
+	TelnetStream2.print(adcs.get(ADC_ENERGY_IN));
 	TelnetStream2.println("Wh");
 
 	TelnetStream2.print("Uout:\t");
-	const float uout = adcs.getInUnit(ADC_VOLTAGE_OUT);
+	const float uout = adcs.get(ADC_VOLTAGE_OUT);
 	TelnetStream2.print(uout);
 	TelnetStream2.print("V ");
 

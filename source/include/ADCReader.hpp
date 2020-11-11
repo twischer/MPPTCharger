@@ -62,10 +62,6 @@ public:
 	float get(const uint8_t channel) {
 		return values[channel].get();
 	}
-
-	float getInUnit(const uint8_t channel) {
-		return get(channel);
-	}
 };
 
 #endif /* __ADCREADER_HPP__ */
