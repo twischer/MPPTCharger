@@ -11,6 +11,9 @@
 #include "ADCCalc.hpp"
 #include "MPPT.hpp"
 
+static const char AP_SSID[] = "MPPTCharger";
+static const char AP_PASSWORD[] = "zweiundvierzig";
+
 static const float ADC_VOLTAGE_OUT_MIN = 33.0;
 static const float ADC_VOLTAGE_OUT_MAX = 42.0;
 SoftwareWatchdog swWatchdog;
@@ -34,7 +37,12 @@ void setup()
 {
 	Serial.begin(115200);
 	WiFiManager wifiManager;
-	wifiManager.autoConnect();
+	/* do not block in Web interface when STA WiFi not available */
+	wifiManager.setConfigPortalTimeout(1);
+	/* connecting to wifi might take some time */
+	swWatchdog.feed();
+	wifiManager.autoConnect(AP_SSID, AP_PASSWORD);
+	swWatchdog.feed();
 
 	TelnetStream2.begin();
 }
@@ -92,6 +100,12 @@ void log()
 void loop()
 {
 	switch (TelnetStream2.read()) {
+	case 'w':
+	case 'W': {
+		WiFiManager wifiManager;
+		wifiManager.startConfigPortal(AP_SSID, AP_PASSWORD);
+		break;
+	}
 	case 'R':
 		TelnetStream2.stop();
 		delay(100);
