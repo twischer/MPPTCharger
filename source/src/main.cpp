@@ -7,7 +7,7 @@
 #include <wiring_private.h>
 #include <TelnetStream2.h>
 #include <WiFiManager.h>
-#include <Adafruit_INA219.h>
+#include <INA219.h>
 #include "SoftwareWatchdog.h"
 #include "ADCCalc.hpp"
 #include "MPPT.hpp"
@@ -17,12 +17,15 @@ static const char AP_PASSWORD[] = "zweiundvierzig";
 
 static const uint8_t INA219_SCL = 2;
 static const uint8_t INA219_SDA = 0;
+static const float SHUNT_R = 0.005;
+static const float SHUNT_MAX_V = 0.04;
+static const float MAX_CURRENT = SHUNT_MAX_V / SHUNT_R;
 
 static const float ADC_VOLTAGE_OUT_MIN = 33.0;
 static const float ADC_VOLTAGE_OUT_MAX = 42.0;
 SoftwareWatchdog swWatchdog;
 ADCCalc adcs;
-Adafruit_INA219 ina219;
+INA219 ina219;
 /* GPIO12 is connected to dead time control of TL494 */
 const uint8_t TL494_DTC_PIN = 12;
 MPPT mppt(TL494_DTC_PIN);
@@ -50,7 +53,9 @@ void setup()
 
 	Wire.begin(INA219_SDA, INA219_SCL);
 	ina219.begin();
-	ina219.setCalibration_32V_2A();
+	ina219.configure(INA219::RANGE_32V, INA219::GAIN_1_40MV, INA219::ADC_64SAMP,
+			INA219::ADC_64SAMP, INA219::CONT_SH_BUS);
+	ina219.calibrate(SHUNT_R, SHUNT_MAX_V, D_V_BUS_MAX, MAX_CURRENT);
 
 	TelnetStream2.begin();
 }
@@ -67,20 +72,21 @@ void log()
 	TelnetStream2.println("ESP8266 MPPT Charger");
 	TelnetStream2.printf("Uin:\t");
 
-	TelnetStream2.print(ina219.getBusVoltage_V());
+	TelnetStream2.print(ina219.busVoltage());
 	TelnetStream2.println("V");
 
 	TelnetStream2.print("Iin:\t");
-	TelnetStream2.print(ina219.getCurrent_mA() / 1000.0);
+	TelnetStream2.print(ina219.shuntCurrent());
 	TelnetStream2.println("A");
 
 	TelnetStream2.print("Pin:\t");
-	TelnetStream2.print(ina219.getPower_mW() / 1000.0);
+	TelnetStream2.print(ina219.busPower());
 	TelnetStream2.println("W");
 
-	TelnetStream2.print("Ein:\t");
+	// TODO provide class which inheritates from ArduinoINA and implements measurment
+/*	TelnetStream2.print("Ein:\t");
 	TelnetStream2.print(adcs.get(ADC_ENERGY_IN));
-	TelnetStream2.println("Wh");
+	TelnetStream2.println("Wh");*/
 
 	TelnetStream2.print("Uout:\t");
 	const float uout = adcs.get(ADC_VOLTAGE_OUT);
@@ -140,8 +146,8 @@ void loop()
 			/* wait for averaging */
 			// TODO may be high diffs will only be craeted on a certain PWM level
 			// therefore avarage over multiple PWM levels
-				mppt.update(ina219.getBusVoltage_V(),
-					ina219.getPower_mW() / 1000.0);
+				mppt.update(ina219.busVoltage(),
+					ina219.busPower());
 			if (counter > 2) {
 				counter = 0;
 				/* print values when desition was made */
