@@ -7,7 +7,7 @@ void MPPT::update(const float voltage, const float power)
 	static bool increase = true;
 
 	/* always 1 W + 3% of current power */
-	const float hysteresis = power * 0.03 + 1.0;
+	const float hysteresis = 0.1;
 
 	if (voltage < 10.0 || pwm > (maxPWM - PWM_UPDATE_DIFF))
 		increase = false;
