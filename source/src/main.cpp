@@ -5,7 +5,9 @@
 #endif
 
 #include <wiring_private.h>
-#include <TelnetStream2.h>
+
+#include <TelnetStream.h>
+#include <StreamUtils.h>
 #include <WiFiManager.h>
 #include <INA219.h>
 #include "SoftwareWatchdog.h"
@@ -29,6 +31,7 @@ INA219 ina219;
 /* GPIO12 is connected to dead time control of TL494 */
 const uint8_t TL494_DTC_PIN = 12;
 MPPT mppt(TL494_DTC_PIN);
+WriteBufferingStream telnet(TelnetStream, 128);
 
 
 RF_PRE_INIT() {
@@ -57,64 +60,65 @@ void setup()
 			INA219::ADC_64SAMP, INA219::CONT_SH_BUS);
 	ina219.calibrate(SHUNT_R, SHUNT_MAX_V, D_V_BUS_MAX, MAX_CURRENT);
 
-	TelnetStream2.begin();
+	TelnetStream.begin();
 }
 
 void log()
 {
 	// TODO only execute the following when a client is connected */
-	//if (!TelnetStream2.available())
+	//if (!TelnetStream.available())
 	//	return;
 
 	/* clear screen and move to home position */
-	TelnetStream2.print("\033[H\033[2J");
+	telnet.print("\033[H\033[2J");
+	telnet.println("ESP8266 MPPT Charger");
 
-	TelnetStream2.println("ESP8266 MPPT Charger");
-	TelnetStream2.printf("Uin:\t");
+	telnet.print("Uin:\t");
+	telnet.print(ina219.busVoltage());
+	telnet.println("V");
 
-	TelnetStream2.print(ina219.busVoltage());
-	TelnetStream2.println("V");
+	telnet.print("Iin:\t");
+	telnet.print(ina219.shuntCurrent());
+	telnet.println("A");
 
-	TelnetStream2.print("Iin:\t");
-	TelnetStream2.print(ina219.shuntCurrent());
-	TelnetStream2.println("A");
-
-	TelnetStream2.print("Pin:\t");
-	TelnetStream2.print(ina219.busPower());
-	TelnetStream2.println("W");
+	telnet.print("Pin:\t");
+	telnet.print(ina219.busPower());
+	telnet.println("W");
 
 	// TODO provide class which inheritates from ArduinoINA and implements measurment
-/*	TelnetStream2.print("Ein:\t");
-	TelnetStream2.print(adcs.get(ADC_ENERGY_IN));
-	TelnetStream2.println("Wh");*/
+/*	telnet.print("Ein:\t");
+	telnet.print(adcs.get(ADC_ENERGY_IN));
+	telnet.println("Wh");*/
 
-	TelnetStream2.print("Uout:\t");
+	telnet.print("Uout:\t");
 	const float uout = adcs.get(ADC_VOLTAGE_OUT);
-	TelnetStream2.print(uout);
-	TelnetStream2.print("V ");
+	telnet.print(uout);
+	telnet.print("V ");
 
 	static const float voltage2level = 100 / (ADC_VOLTAGE_OUT_MAX - ADC_VOLTAGE_OUT_MIN);
 	const float uoutBattStart = uout - ADC_VOLTAGE_OUT_MIN;
 	const float chargeLevel = (uoutBattStart > 0) ? (uoutBattStart * voltage2level) : 0.0;
-	TelnetStream2.print(chargeLevel);
-	TelnetStream2.println("%");
 
-	TelnetStream2.print("PWMout:\t");
+	telnet.print(chargeLevel);
+	telnet.println("%");
+
+	telnet.print("PWMout:\t");
 	const float pwm = mppt.getPwmLevel();
-	TelnetStream2.print(pwm);
-	TelnetStream2.print("% ");
+	telnet.print(pwm);
+	telnet.print("% ");
 
 	static float lastPWM = 0.0;
 	if (pwm > lastPWM)
-		TelnetStream2.println("u");
+		telnet.println("u");
 	else
-		TelnetStream2.println("d");
+		telnet.println("d");
 	lastPWM = pwm;
+	telnet.flush();
 }
 
 void loop()
 {
-	switch (TelnetStream2.read()) {
+	switch (TelnetStream.read()) {
 	case 'w':
 	case 'W': {
 		WiFiManager wifiManager;
@@ -122,7 +126,7 @@ void loop()
 		break;
 	}
 	case 'R':
-		TelnetStream2.stop();
+		TelnetStream.stop();
 		delay(100);
 		ESP.restart();
 		break;
@@ -130,9 +134,9 @@ void loop()
 	case 'q':
 	case 'c':
 	case 'C':
-		TelnetStream2.println("bye bye");
-		TelnetStream2.flush();
-		TelnetStream2.stop();
+		TelnetStream.println("bye bye");
+		TelnetStream.flush();
+		TelnetStream.stop();
 		break;
 	}
 
