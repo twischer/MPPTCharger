@@ -5,7 +5,7 @@
 #endif
 
 #include <wiring_private.h>
-
+#include <GDBStub.h>
 #include <TelnetStream.h>
 #include <StreamUtils.h>
 #include <WiFiManager.h>
@@ -16,6 +16,8 @@
 
 static const char AP_SSID[] = "MPPTCharger";
 static const char AP_PASSWORD[] = "zweiundvierzig";
+
+static const bool ENABLE_GDB_STUB = false;
 
 static const uint8_t INA219_SCL = 2;
 static const uint8_t INA219_SDA = 0;
@@ -46,6 +48,14 @@ void resetPins() {}
 void setup()
 {
 	Serial.begin(115200);
+	Serial.print("Reset reason: ");
+	Serial.println(ESP.getResetInfo());
+
+	if (ENABLE_GDB_STUB) {
+		/* See https://arduino-esp8266.readthedocs.io/en/latest/gdb.html for usage */
+		gdbstub_init();
+	}
+
 	WiFiManager wifiManager;
 	/* do not block in Web interface when STA WiFi not available */
 	wifiManager.setConfigPortalTimeout(1);
