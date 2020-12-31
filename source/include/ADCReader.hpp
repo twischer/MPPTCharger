@@ -7,6 +7,8 @@
 #include <Filters/MedianFilter.hpp>
 #include <Filters/SMA.hpp>
 
+#define ARRAY_SIZE(array) ((sizeof(array))/(sizeof(array[0])))
+
 enum ADC_CHANNEL {
 	ADC_CURRENT_IN,
 	ADC_VOLTAGE_IN,
@@ -14,9 +16,7 @@ enum ADC_CHANNEL {
 	ADC_MAX
 };
 
-static const uint8_t ADC_CH_SEL_PIN	= 13;
-static const uint8_t ADC_CH_SEL_PINS	= 3;
-static const uint32_t ADC_CH_SEL_MASK	= (1 << ADC_CH_SEL_PINS) - 1;
+static const uint8_t ADC_CH_SEL_PINS[] = {0, 14, 15};
 
 class ADCReader {
 private:
@@ -49,11 +49,12 @@ private:
 
 public:
 	ADCReader() : nextChannel(0) {
-		assert(ADC_MAX < ADC_CH_SEL_MASK);
+		assert( ADC_MAX < (1 << ARRAY_SIZE(ADC_CH_SEL_PINS)) );
 
-		for (uint8_t i=ADC_CH_SEL_PIN; i<ADC_CH_SEL_PIN+ADC_CH_SEL_PINS; i++) {
-			pinMode(i, OUTPUT);
-			digitalWrite(i, LOW);
+		for (uint8_t i=0; i<ARRAY_SIZE(ADC_CH_SEL_PINS); i++) {
+			const uint8_t pin = ADC_CH_SEL_PINS[i];
+			pinMode(pin, OUTPUT);
+			digitalWrite(pin, LOW);
 		}
 	}
 

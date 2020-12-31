@@ -37,8 +37,13 @@ bool ADCReader::update()
 	if (nextChannel >= ADC_MAX)
 		nextChannel = 0;
 
-	GPOC = ADC_CH_SEL_MASK << ADC_CH_SEL_PIN;
-	GPOS = (nextChannel & ADC_CH_SEL_MASK) << ADC_CH_SEL_PIN;
+	for (uint8_t i=0; i<ARRAY_SIZE(ADC_CH_SEL_PINS); i++) {
+		const uint32_t mask = 1 << ADC_CH_SEL_PINS[i];
+		if (nextChannel & (1 << i))
+			GPOS = mask;
+		else
+			GPOC = mask;
+	}
 
 	return (nextChannel == 0);
 }

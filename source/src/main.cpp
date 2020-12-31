@@ -20,7 +20,7 @@ static const char AP_PASSWORD[] = "zweiundvierzig";
 static const bool ENABLE_GDB_STUB = false;
 
 static const uint8_t INA219_SCL = 2;
-static const uint8_t INA219_SDA = 0;
+static const uint8_t INA219_SDA = 13;
 static const float SHUNT_R = 0.005;
 static const float SHUNT_MAX_V = 0.04;
 static const float MAX_CURRENT = SHUNT_MAX_V / SHUNT_R;

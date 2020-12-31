@@ -36,7 +36,7 @@ F 3 "http://www.ti.com/lit/ds/symlink/cd74hc4051.pdf" H 6750 4250 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Regulator_Controller:TL494 U1
+L mppt-rescue:TL494-Regulator_Controller U1
 U 1 1 5F623419
 P 3500 6700
 F 0 "U1" H 3500 7581 50  0000 C CNN
@@ -349,12 +349,6 @@ Wire Wire Line
 Wire Wire Line
 	5700 4650 6450 4650
 Wire Wire Line
-	5700 4450 6050 4450
-Wire Wire Line
-	6050 4450 6050 4550
-Wire Wire Line
-	6050 4550 6450 4550
-Wire Wire Line
 	5700 4350 6200 4350
 Wire Wire Line
 	6200 4350 6200 4750
@@ -431,29 +425,27 @@ $EndComp
 $Comp
 L Connector_Generic:Conn_01x02 J12
 U 1 1 5F8926F2
-P 5800 3850
-F 0 "J12" V 5764 3662 50  0000 R CNN
-F 1 "Download" V 5673 3662 50  0000 R CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 5800 3850 50  0001 C CNN
-F 3 "~" H 5800 3850 50  0001 C CNN
-	1    5800 3850
+P 5700 3850
+F 0 "J12" V 5664 3662 50  0000 R CNN
+F 1 "Download" V 5573 3662 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 5700 3850 50  0001 C CNN
+F 3 "~" H 5700 3850 50  0001 C CNN
+	1    5700 3850
 	0    -1   -1   0   
 $EndComp
 $Comp
 L power:GND #PWR010
 U 1 1 5F89405D
-P 5900 4050
-F 0 "#PWR010" H 5900 3800 50  0001 C CNN
-F 1 "GND" H 5905 3877 50  0000 C CNN
-F 2 "" H 5900 4050 50  0001 C CNN
-F 3 "" H 5900 4050 50  0001 C CNN
-	1    5900 4050
+P 5800 4050
+F 0 "#PWR010" H 5800 3800 50  0001 C CNN
+F 1 "GND" H 5805 3877 50  0000 C CNN
+F 2 "" H 5800 4050 50  0001 C CNN
+F 3 "" H 5800 4050 50  0001 C CNN
+	1    5800 4050
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5700 4150 5800 4150
-Wire Wire Line
-	5800 4150 5800 4050
+	5700 4150 5700 4050
 Wire Wire Line
 	7150 4450 7400 4450
 Wire Wire Line
@@ -569,18 +561,15 @@ Wire Wire Line
 Wire Wire Line
 	2300 2350 2000 2350
 Wire Wire Line
-	5700 4250 6150 4250
+	5700 4250 5950 4250
 Wire Wire Line
-	6150 4250 6150 2550
+	5950 4250 5950 2550
 Wire Wire Line
 	3500 2550 3600 2550
 Wire Wire Line
 	3500 4350 3900 4350
 Wire Wire Line
-	5700 4150 5700 2450
-Wire Wire Line
 	3500 2450 3650 2450
-Connection ~ 5700 4150
 $Comp
 L Connector_Generic:Conn_01x09 J4
 U 1 1 5FBEA2EF
@@ -655,14 +644,12 @@ Wire Wire Line
 	2800 1600 3600 1600
 Connection ~ 3600 2550
 Wire Wire Line
-	3600 2550 6150 2550
+	3600 2550 5950 2550
 Wire Wire Line
 	3650 1550 2900 1550
 Wire Wire Line
 	2900 1550 2900 1500
 Connection ~ 3650 2450
-Wire Wire Line
-	3650 2450 5700 2450
 $Comp
 L power:GND #PWR0104
 U 1 1 5FC60482
@@ -765,4 +752,17 @@ Connection ~ 1750 2850
 Wire Wire Line
 	1750 2850 1750 3150
 Connection ~ 1750 3150
+Wire Wire Line
+	5700 4150 6300 4150
+Wire Wire Line
+	6300 4150 6300 4550
+Wire Wire Line
+	6300 4550 6450 4550
+Connection ~ 5700 4150
+Wire Wire Line
+	6050 2450 6050 4450
+Wire Wire Line
+	6050 4450 5700 4450
+Wire Wire Line
+	3650 2450 6050 2450
 $EndSCHEMATC
