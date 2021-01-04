@@ -11,7 +11,7 @@ const ADCReader::adc2unit_t ADCReader::adc2unit[ADC_MAX] = {
 		.gain = 0.02524754,
 	},
 	[ADC_VOLTAGE_OUT] = {
-		.offset = -0.2693149,
+		.offset = -0.1384028,
 		.gain = 0.05386298,
 	},
 };
@@ -29,7 +29,6 @@ bool ADCReader::update()
 		const adc2unit_t& a2u = adc2unit[nextChannel];
 		const float value = adc * a2u.gain + a2u.offset;
 		const float limitedValue = (value < 0.0) ? 0.0 : value;
-	//	TelnetStream2.println(limitedValue);
 		values[nextChannel].update(limitedValue);
 	}
 
