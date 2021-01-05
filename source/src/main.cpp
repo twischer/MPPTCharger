@@ -27,6 +27,8 @@ static const float MAX_CURRENT = SHUNT_MAX_V / SHUNT_R;
 
 static const float ADC_VOLTAGE_OUT_MIN = 33.0;
 static const float ADC_VOLTAGE_OUT_MAX = 42.0;
+static const float ADC_VOLTAGE_OUT_PROTECT = ADC_VOLTAGE_OUT_MAX * 1.01; /* max + 1% */
+
 SoftwareWatchdog swWatchdog;
 ADCCalc adcs;
 INA219 ina219;
@@ -36,10 +38,15 @@ MPPT mppt(TL494_DTC_PIN);
 WriteBufferingStream telnet(TelnetStream, 128);
 
 
-RF_PRE_INIT() {
-	/* disable step up/down converter to keep initial solar power for ESP boot up */
+static void outSwitchOff()
+{
 	digitalWrite(TL494_DTC_PIN, HIGH);
 	pinMode(TL494_DTC_PIN, OUTPUT);
+}
+
+RF_PRE_INIT() {
+	/* disable step up/down converter to keep initial solar power for ESP boot up */
+	outSwitchOff();
 }
 
 /* do not reset GPIO pins between RF_PRE_INIT() and setup() */
@@ -102,6 +109,11 @@ void log()
 
 	telnet.print("Uout:\t");
 	const float uout = adcs.get(ADC_VOLTAGE_OUT);
+	static bool outProtected = false;
+	if (uout > ADC_VOLTAGE_OUT_PROTECT) {
+		outSwitchOff();
+		outProtected = true;
+	}
 	telnet.print(uout);
 	telnet.print("V ");
 
@@ -113,16 +125,20 @@ void log()
 	telnet.println("%");
 
 	telnet.print("PWMout:\t");
-	const float pwm = mppt.getPwmLevel();
-	telnet.print(pwm);
-	telnet.print("% ");
+	if (outProtected)
+		telnet.println("PROTECTED!!!");
+	else {
+		const float pwm = mppt.getPwmLevel();
+		telnet.print(pwm);
+		telnet.print("% ");
 
-	static float lastPWM = 0.0;
-	if (pwm > lastPWM)
-		telnet.println("u");
-	else
-		telnet.println("d");
-	lastPWM = pwm;
+		static float lastPWM = 0.0;
+		if (pwm > lastPWM)
+			telnet.println("u");
+		else
+			telnet.println("d");
+		lastPWM = pwm;
+	}
 	telnet.flush();
 }
 
