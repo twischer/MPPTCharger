@@ -90,6 +90,11 @@ void log()
 	telnet.print("\033[H\033[2J");
 	telnet.println("ESP8266 MPPT Charger");
 
+	const uint32_t minutes = millis() / 60000;
+	const uint32_t hours = minutes / 60;
+	telnet.printf("Uptime:\t%u:%02uh", hours, (minutes % 60));
+	telnet.println();
+
 	telnet.print("Uin:\t");
 	telnet.print(ina219.busVoltage());
 	telnet.println("V");
