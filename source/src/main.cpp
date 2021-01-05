@@ -11,7 +11,7 @@
 #include <WiFiManager.h>
 #include <INA219.h>
 #include "SoftwareWatchdog.h"
-#include "ADCCalc.hpp"
+#include "ADCReader.hpp"
 #include "MPPT.hpp"
 
 static const char AP_SSID[] = "MPPTCharger";
@@ -30,7 +30,7 @@ static const float ADC_VOLTAGE_OUT_MAX = 42.0;
 static const float ADC_VOLTAGE_OUT_PROTECT = ADC_VOLTAGE_OUT_MAX * 1.01; /* max + 1% */
 
 SoftwareWatchdog swWatchdog;
-ADCCalc adcs;
+ADCReader adcs;
 INA219 ina219;
 /* GPIO12 is connected to dead time control of TL494 */
 const uint8_t TL494_DTC_PIN = 12;
