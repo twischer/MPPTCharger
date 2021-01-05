@@ -9,7 +9,7 @@
 #include <TelnetStream.h>
 #include <StreamUtils.h>
 #include <WiFiManager.h>
-#include <INA219.h>
+#include <INA219Calc.hpp>
 #include "SoftwareWatchdog.h"
 #include "ADCReader.hpp"
 #include "MPPT.hpp"
@@ -31,7 +31,7 @@ static const float ADC_VOLTAGE_OUT_PROTECT = ADC_VOLTAGE_OUT_MAX * 1.01; /* max 
 
 SoftwareWatchdog swWatchdog;
 ADCReader adcs;
-INA219 ina219;
+INA219Calc ina219;
 /* GPIO12 is connected to dead time control of TL494 */
 const uint8_t TL494_DTC_PIN = 12;
 MPPT mppt(TL494_DTC_PIN);
@@ -102,10 +102,9 @@ void log()
 	telnet.print(ina219.busPower());
 	telnet.println("W");
 
-	// TODO provide class which inheritates from ArduinoINA and implements measurment
-/*	telnet.print("Ein:\t");
-	telnet.print(adcs.get(ADC_ENERGY_IN));
-	telnet.println("Wh");*/
+	telnet.print("Ein:\t");
+	telnet.print(ina219.busEnergy());
+	telnet.println("Wh");
 
 	telnet.print("Uout:\t");
 	const float uout = adcs.get(ADC_VOLTAGE_OUT);
