@@ -35,7 +35,7 @@ INA219Calc ina219;
 /* GPIO12 is connected to dead time control of TL494 */
 const uint8_t TL494_DTC_PIN = 12;
 MPPT mppt(TL494_DTC_PIN);
-WriteBufferingStream telnet(TelnetStream, 128);
+WriteBufferingStream telnet(TelnetStream, 160);
 
 
 static void outSwitchOff()
@@ -80,7 +80,7 @@ void setup()
 	TelnetStream.begin();
 }
 
-void log()
+static void updateTelnet()
 {
 	// TODO only execute the following when a client is connected */
 	//if (!TelnetStream.available())
@@ -90,9 +90,10 @@ void log()
 	telnet.print("\033[H\033[2J");
 	telnet.println("ESP8266 MPPT Charger");
 
-	const uint32_t minutes = millis() / 60000;
+	const uint32_t seconds = millis() / 1000;
+	const uint32_t minutes = seconds / 60;
 	const uint32_t hours = minutes / 60;
-	telnet.printf("Uptime:\t%u:%02uh", hours, (minutes % 60));
+	telnet.printf("Uptime:\t%02u:%02u:%02uh", hours, (minutes % 60), (seconds % 60));
 	telnet.println();
 
 	telnet.print("Uin:\t");
@@ -182,10 +183,10 @@ void loop()
 			// therefore avarage over multiple PWM levels
 				mppt.update(ina219.busVoltage(),
 					ina219.busPower());
-			if (counter > 2) {
+			if (counter > 6) {
 				counter = 0;
 				/* print values when desition was made */
-				log();
+				updateTelnet();
 				swWatchdog.feed();
 			}
 			counter++;
