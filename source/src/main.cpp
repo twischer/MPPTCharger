@@ -153,7 +153,10 @@ void loop()
 	case 'w':
 	case 'W': {
 		WiFiManager wifiManager;
+		swWatchdog.disable();
+		/* this call blocks until a WLAN was selected */
 		wifiManager.startConfigPortal(AP_SSID, AP_PASSWORD);
+		swWatchdog.enable();
 		break;
 	}
 	case 'R':

@@ -27,6 +27,10 @@ private:
 
 public:
 	SoftwareWatchdog() : ticker() {
+		enable();
+	}
+
+	void enable() {
 		feed();
 		ticker.attach_ms(TIMEOUT, static_callback, this);
 	}
@@ -34,6 +38,10 @@ public:
 	void feed() {
 		time = millis();
 		timeout = time + TIMEOUT;
+	}
+
+	void disable() {
+		ticker.detach();
 	}
 };
 
