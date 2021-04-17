@@ -227,10 +227,6 @@ F 3 "~" H 5650 6650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5450 6650 5050 6650
-Wire Wire Line
-	5050 6650 5050 6550
-Wire Wire Line
 	5050 6550 4550 6550
 $Comp
 L Device:R R4
@@ -254,9 +250,6 @@ F 3 "~" H 5050 7400 50  0001 C CNN
 	1    5050 7400
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	5050 6650 5050 6850
-Connection ~ 5050 6650
 Wire Wire Line
 	5050 7150 5050 7200
 $Comp
@@ -405,8 +398,6 @@ Wire Wire Line
 	7150 2250 7500 2250
 Wire Wire Line
 	1750 6550 2050 6550
-Wire Wire Line
-	1750 3150 2400 3150
 Wire Wire Line
 	3650 3150 3800 3150
 Wire Wire Line
@@ -601,8 +592,6 @@ Wire Wire Line
 	3400 3150 3650 3150
 Wire Wire Line
 	3650 2700 3650 3150
-Wire Wire Line
-	1750 3150 1750 4900
 $Comp
 L power:GND #PWR0103
 U 1 1 5FC23778
@@ -750,9 +739,6 @@ Wire Wire Line
 	1750 2850 1400 2850
 Connection ~ 1750 2850
 Wire Wire Line
-	1750 2850 1750 3150
-Connection ~ 1750 3150
-Wire Wire Line
 	5700 4150 6300 4150
 Wire Wire Line
 	6300 4150 6300 4550
@@ -765,4 +751,68 @@ Wire Wire Line
 	6050 4450 5700 4450
 Wire Wire Line
 	3650 2450 6050 2450
+Wire Notes Line
+	2200 5700 2200 7350
+Wire Notes Line
+	2200 7350 4400 7350
+Wire Notes Line
+	4400 7350 4400 5700
+Wire Notes Line
+	4400 5700 2200 5700
+Text Notes 2800 5700 0    50   ~ 0
+400W Step Up Module
+Wire Notes Line
+	2550 3100 3250 3100
+Wire Notes Line
+	3250 3100 3250 4000
+Wire Notes Line
+	3250 4000 2550 4000
+Wire Notes Line
+	2550 4000 2550 3100
+Text Notes 2550 3100 0    50   ~ 0
+Step Down Module
+Wire Wire Line
+	1750 2850 1750 4900
+$Comp
+L Device:D_Zener D?
+U 1 1 607B65EC
+P 2250 3150
+F 0 "D?" V 2204 3229 50  0000 L CNN
+F 1 "2V0" V 2295 3229 50  0000 L CNN
+F 2 "Diode_SMD:D_2010_5025Metric" H 2250 3150 50  0001 C CNN
+F 3 "~" H 2250 3150 50  0001 C CNN
+	1    2250 3150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5050 5500 2200 5500
+Wire Wire Line
+	2200 5500 2200 3350
+Wire Wire Line
+	2200 3350 2000 3350
+Wire Wire Line
+	2000 3350 2000 3150
+Wire Wire Line
+	2000 3150 2100 3150
+Connection ~ 5050 6550
+$Comp
+L Device:Fuse F?
+U 1 1 607CDEE6
+P 5300 6650
+F 0 "F?" V 5103 6650 50  0000 C CNN
+F 1 "3A" V 5194 6650 50  0000 C CNN
+F 2 "" V 5230 6650 50  0001 C CNN
+F 3 "~" H 5300 6650 50  0001 C CNN
+	1    5300 6650
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5050 6550 5050 6650
+Wire Wire Line
+	5050 5500 5050 6550
+Wire Wire Line
+	5150 6650 5050 6650
+Connection ~ 5050 6650
+Wire Wire Line
+	5050 6650 5050 6850
 $EndSCHEMATC
