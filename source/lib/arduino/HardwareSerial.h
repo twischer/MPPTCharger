@@ -148,7 +148,7 @@ public:
     {
         return 0x100;
     }
-    void flush(void) override;
+    void flush(void) { fflush(stdout); };
     size_t write(uint8_t c) override
     {
         return fwrite(&c, sizeof(c), 1, stdout);
