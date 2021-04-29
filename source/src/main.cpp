@@ -4,15 +4,18 @@
 #include <WiFi.h>
 #endif
 
+#if defined ESP8266 || defined ESP32
 #include <wiring_private.h>
 #include <GDBStub.h>
 #include <TelnetStream.h>
 #include <StreamUtils.h>
 #include <WiFiManager.h>
-#include <INA219Calc.hpp>
 #include "SoftwareWatchdog.h"
 #include "ADCReader.hpp"
-#include "MPPT.hpp"
+#endif
+
+#include <INA219Calc.hpp>
+// TODO #include "MPPT.hpp"
 
 static const char AP_SSID[] = "MPPTCharger";
 static const char AP_PASSWORD[] = "zweiundvierzig";
@@ -29,15 +32,25 @@ static const float ADC_VOLTAGE_OUT_MIN = 33.0;
 static const float ADC_VOLTAGE_OUT_MAX = 42.0;
 static const float ADC_VOLTAGE_OUT_PROTECT = ADC_VOLTAGE_OUT_MAX * 1.01; /* max + 1% */
 
+#if defined ESP8266 || defined ESP32
 SoftwareWatchdog swWatchdog;
 ADCReader adcs;
-INA219Calc ina219;
+#endif
+
+// TODO INA219Calc ina219;
+
 /* GPIO12 is connected to dead time control of TL494 */
 const uint8_t TL494_DTC_PIN = 12;
-MPPT mppt(TL494_DTC_PIN);
+// TODO MPPT mppt(TL494_DTC_PIN);
+
+#if defined ESP8266 || defined ESP32
 WriteBufferingStream telnet(TelnetStream, 160);
+#else
+Stream& telnet = Serial;
+#endif
 
 
+#if defined ESP8266 || defined ESP32
 static void outSwitchOff()
 {
 	digitalWrite(TL494_DTC_PIN, HIGH);
@@ -51,9 +64,11 @@ RF_PRE_INIT() {
 
 /* do not reset GPIO pins between RF_PRE_INIT() and setup() */
 void resetPins() {}
+#endif
 
 void setup()
 {
+#if defined ESP8266 || defined ESP32
 	Serial.begin(115200);
 	Serial.print("Reset reason: ");
 	Serial.println(ESP.getResetInfo());
@@ -70,14 +85,19 @@ void setup()
 	swWatchdog.feed();
 	wifiManager.autoConnect(AP_SSID, AP_PASSWORD);
 	swWatchdog.feed();
+#endif
 
 	Wire.begin(INA219_SDA, INA219_SCL);
+#ifdef INA219	// TODO
 	ina219.begin();
 	ina219.configure(INA219::RANGE_32V, INA219::GAIN_1_40MV, INA219::ADC_64SAMP,
 			INA219::ADC_64SAMP, INA219::CONT_SH_BUS);
 	ina219.calibrate(SHUNT_R, SHUNT_MAX_V, D_V_BUS_MAX, MAX_CURRENT);
+#endif
 
+#if defined ESP8266 || defined ESP32
 	TelnetStream.begin();
+#endif
 }
 
 static void updateTelnet()
@@ -88,7 +108,7 @@ static void updateTelnet()
 
 	/* clear screen and move to home position */
 	telnet.print("\033[H\033[2J");
-	telnet.println("ESP8266 MPPT Charger");
+	telnet.println("MPPT Charger");
 
 	const uint32_t seconds = millis() / 1000;
 	const uint32_t minutes = seconds / 60;
@@ -97,24 +117,25 @@ static void updateTelnet()
 	telnet.println();
 
 	telnet.print("Uin:\t");
-	telnet.print(ina219.busVoltage());
+// TODO	telnet.print(ina219.busVoltage());
 	telnet.println("V");
 
 	telnet.print("Iin:\t");
-	telnet.print(ina219.shuntCurrent());
+// TODO	telnet.print(ina219.shuntCurrent());
 	telnet.println("A");
 
 	telnet.print("Pin:\t");
-	telnet.print(ina219.busPower());
+// TODO	telnet.print(ina219.busPower());
 	telnet.println("W");
 
 	telnet.print("Ein:\t");
-	telnet.print(ina219.busEnergy());
+// TODO	telnet.print(ina219.busEnergy());
 	telnet.println("Wh");
 
+	static bool outProtected = false;
+#if defined ESP8266 || defined ESP32
 	telnet.print("Uout:\t");
 	const float uout = adcs.get(ADC_VOLTAGE_OUT);
-	static bool outProtected = false;
 	if (uout > ADC_VOLTAGE_OUT_PROTECT) {
 		outSwitchOff();
 		outProtected = true;
@@ -128,12 +149,13 @@ static void updateTelnet()
 
 	telnet.print(chargeLevel);
 	telnet.println("%");
+#endif
 
 	telnet.print("PWMout:\t");
 	if (outProtected)
 		telnet.println("PROTECTED!!!");
 	else {
-		const float pwm = mppt.getPwmLevel();
+		const float pwm = 0; // TODO mppt.getPwmLevel();
 		telnet.print(pwm);
 		telnet.print("% ");
 
@@ -149,6 +171,7 @@ static void updateTelnet()
 
 void loop()
 {
+#if defined ESP8266 || defined ESP32
 	switch (TelnetStream.read()) {
 	case 'w':
 	case 'W': {
@@ -173,24 +196,29 @@ void loop()
 		TelnetStream.stop();
 		break;
 	}
-
+#endif
 
 	const unsigned long now = millis();
 	static unsigned long next = now;
 	static uint8_t counter = 0;
 	if (next < now) {
 		next += 50;
-		if (adcs.update()) {
+#if defined ESP8266 || defined ESP32
+		if (adcs.update())
+#endif
+		{
 			/* wait for averaging */
 			// TODO may be high diffs will only be craeted on a certain PWM level
 			// therefore avarage over multiple PWM levels
-				mppt.update(ina219.busVoltage(),
-					ina219.busPower());
+// TODO				mppt.update(ina219.busVoltage(),
+// TODO					ina219.busPower());
 			if (counter > 6) {
 				counter = 0;
 				/* print values when desition was made */
 				updateTelnet();
+#if defined ESP8266 || defined ESP32
 				swWatchdog.feed();
+#endif
 			}
 			counter++;
 		}
