@@ -110,6 +110,7 @@ void initVariant(void);
 
 int atexit(void (*func)()) __attribute__((weak));
 
+uint64_t micros64(void) { return micros(); }
 unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout);
 unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout);
 
