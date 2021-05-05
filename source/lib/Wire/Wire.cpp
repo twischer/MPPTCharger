@@ -23,14 +23,15 @@
 */
 
 extern "C" {
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
 }
 
-#include "twi.h"
+#include <Arduino.h>
+#include <wiringPiI2C.h>
 #include "Wire.h"
-
 
 //Some boards don't have these pins available, and hence don't support Wire.
 //Check here for compile-time error.
@@ -43,6 +44,9 @@ extern "C" {
 uint8_t TwoWire::rxBuffer[BUFFER_LENGTH];
 uint8_t TwoWire::rxBufferIndex = 0;
 uint8_t TwoWire::rxBufferLength = 0;
+
+uint8_t TwoWire::fdAddress = 0;
+int TwoWire::fd = -1;
 
 uint8_t TwoWire::txAddress = 0;
 uint8_t TwoWire::txBuffer[BUFFER_LENGTH];
@@ -66,7 +70,6 @@ void TwoWire::begin(int sda, int scl)
 {
     default_sda_pin = sda;
     default_scl_pin = scl;
-    twi_init(sda, scl);
     flush();
 }
 
@@ -74,10 +77,9 @@ void TwoWire::begin(int sda, int scl, uint8_t address)
 {
     default_sda_pin = sda;
     default_scl_pin = scl;
-    twi_setAddress(address);
-    twi_init(sda, scl);
-    twi_attachSlaveTxEvent(onRequestService);
-    twi_attachSlaveRxEvent(onReceiveService);
+    // TODO twi_setAddress(address);
+    //twi_attachSlaveTxEvent(onRequestService);
+    //twi_attachSlaveRxEvent(onReceiveService);
     flush();
 }
 
@@ -92,17 +94,26 @@ void TwoWire::begin(void)
     begin(default_sda_pin, default_scl_pin);
 }
 
+void TwoWire::openDevice(uint8_t address)
+{
+	if (fdAddress != address) {
+		close(fd);
+		fd = wiringPiI2CSetup(address);
+		fdAddress = address;
+	}
+}
+
 void TwoWire::begin(uint8_t address)
 {
-    twi_setAddress(address);
-    twi_attachSlaveTxEvent(onRequestService);
-    twi_attachSlaveRxEvent(onReceiveService);
+    openDevice(address);
+    //twi_attachSlaveTxEvent(onRequestService);
+    //twi_attachSlaveRxEvent(onReceiveService);
     begin();
 }
 
 uint8_t TwoWire::status()
 {
-    return twi_status();
+    return 1; // TODO twi_status();
 }
 
 void TwoWire::begin(int address)
@@ -112,12 +123,12 @@ void TwoWire::begin(int address)
 
 void TwoWire::setClock(uint32_t frequency)
 {
-    twi_setClock(frequency);
+    // TODO twi_setClock(frequency);
 }
 
 void TwoWire::setClockStretchLimit(uint32_t limit)
 {
-    twi_setClockStretchLimit(limit);
+    // TODO twi_setClockStretchLimit(limit);
 }
 
 size_t TwoWire::requestFrom(uint8_t address, size_t size, bool sendStop)
@@ -154,6 +165,7 @@ uint8_t TwoWire::requestFrom(int address, int quantity, int sendStop)
 
 void TwoWire::beginTransmission(uint8_t address)
 {
+    openDevice(address);
     transmitting = 1;
     txAddress = address;
     txBufferIndex = 0;
@@ -167,7 +179,21 @@ void TwoWire::beginTransmission(int address)
 
 uint8_t TwoWire::endTransmission(uint8_t sendStop)
 {
-    int8_t ret = twi_writeTo(txAddress, txBuffer, txBufferLength, sendStop);
+    int ret = -1;
+    switch (txBufferLength) {
+	    case 1:
+		    ret = wiringPiI2CWrite(fd, txBuffer[0]);
+		    break;
+	    case 2:
+		    ret = wiringPiI2CWriteReg8(fd, txBuffer[0], txBuffer[1]);
+		    break;
+	    case 3:
+		    ret = wiringPiI2CWriteReg16(fd, txBuffer[0], (int)txBuffer[1] | ((int)txBufferLength[2] << 8));
+		    break;
+	    default:
+		    printf("%s ERROR: Unsuported length %u\n", __func__, txBufferLength);
+
+    }
     txBufferIndex = 0;
     txBufferLength = 0;
     transmitting = 0;
@@ -194,26 +220,20 @@ size_t TwoWire::write(uint8_t data)
     }
     else
     {
-        twi_transmit(&data, 1);
+	printf("%s ERROR: beginTransmission() not called\n", __func__);
+	return 0;
     }
     return 1;
 }
 
 size_t TwoWire::write(const uint8_t *data, size_t quantity)
 {
-    if (transmitting)
+    for (size_t i = 0; i < quantity; ++i)
     {
-        for (size_t i = 0; i < quantity; ++i)
+        if (!write(data[i]))
         {
-            if (!write(data[i]))
-            {
-                return i;
-            }
+    	return i;
         }
-    }
-    else
-    {
-        twi_transmit(data, quantity);
     }
     return quantity;
 }
@@ -221,14 +241,6 @@ size_t TwoWire::write(const uint8_t *data, size_t quantity)
 int TwoWire::available(void)
 {
     int result = rxBufferLength - rxBufferIndex;
-
-    if (!result)
-    {
-        // yielding here will not make more data "available",
-        // but it will prevent the system from going into WDT reset
-        optimistic_yield(1000);
-    }
-
     return result;
 }
 

@@ -38,6 +38,8 @@ private:
     static uint8_t rxBufferIndex;
     static uint8_t rxBufferLength;
 
+    static int fd;
+    static uint8_t fdAddress;
     static uint8_t txAddress;
     static uint8_t txBuffer[];
     static uint8_t txBufferIndex;
@@ -48,6 +50,7 @@ private:
     static void (*user_onReceive)(size_t);
     static void onRequestService(void);
     static void onReceiveService(uint8_t*, size_t);
+    void openDevice(uint8_t address);
 public:
     TwoWire();
     void begin(int sda, int scl);

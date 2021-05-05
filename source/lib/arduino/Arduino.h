@@ -32,6 +32,8 @@ extern "C" {
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
+#include <errno.h>
 
 #include <wiringPi.h>
 #include "binary.h"
@@ -49,8 +51,10 @@ extern "C" {
 #define SERIAL  0x0
 #define DISPLAY 0x1
 
-#define LSBFIRST 0
-#define MSBFIRST 1
+typedef enum _BitOrder {
+  LSBFIRST,
+  MSBFIRST,
+} BitOrder;
 
 //Interrupt Modes
 #define RISING    0x01
@@ -110,7 +114,19 @@ void initVariant(void);
 
 int atexit(void (*func)()) __attribute__((weak));
 
-uint64_t micros64(void) { return micros(); }
+static inline int _delay_ms(uint64_t msec) {
+	int res;
+	struct timespec ts;
+	ts.tv_sec = msec / 1000;
+	ts.tv_nsec = (msec % 1000) * 1000000;
+
+	do {
+		res = nanosleep(&ts, &ts);
+	} while (res && errno == EINTR);
+
+	return res;
+}
+static inline uint64_t micros64(void) { return micros(); }
 unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout);
 unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout);
 
@@ -186,5 +202,11 @@ long secureRandom(long, long);
 long map(long, long, long, long, long);
 
 #endif // __cplusplus
+
+/* usually part of pins_arduino.h */
+#define SDA	0
+#define SCL	0
+#define PIN_WIRE_SDA SDA
+#define PIN_WIRE_SCL SCL
 
 #endif
