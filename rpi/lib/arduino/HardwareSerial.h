@@ -88,11 +88,11 @@ public:
     {
     }
 
-    void end();
+    void end() {}
 
-    void updateBaudRate(unsigned long baud);
+    void updateBaudRate(unsigned long baud) {}
 
-    size_t setRxBufferSize(size_t size);
+    size_t setRxBufferSize(size_t size) {}
     size_t getRxBufferSize()
     {
         return 0;
@@ -122,7 +122,7 @@ public:
     {
     }
 
-    int available(void) override;
+    int available(void) override {}
 
     int peek(void) override
     {
@@ -139,7 +139,7 @@ public:
     {
         return 0;
     }
-    size_t readBytes(char* buffer, size_t size) override;
+    size_t readBytes(char* buffer, size_t size) override {}
     size_t readBytes(uint8_t* buffer, size_t size) override
     {
         return readBytes((char*)buffer, size);
@@ -162,7 +162,7 @@ public:
     {
         return true;
     }
-    void setDebugOutput(bool);
+    void setDebugOutput(bool) {}
     bool isTxEnabled(void)
     {
         return true;
@@ -186,11 +186,11 @@ public:
         return false;
     }
 
-    void startDetectBaudrate();
+    void startDetectBaudrate() {}
 
-    unsigned long testBaudrate();
+    unsigned long testBaudrate() {}
 
-    unsigned long detectBaudrate(time_t timeoutMillis);
+    unsigned long detectBaudrate(time_t timeoutMillis) {}
 };
 
 extern HardwareSerial Serial;
