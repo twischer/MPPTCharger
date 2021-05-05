@@ -23,10 +23,11 @@
 */
 
 extern "C" {
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <inttypes.h>
+#include <cassert>
 }
 
 #include <Arduino.h>
@@ -137,7 +138,8 @@ size_t TwoWire::requestFrom(uint8_t address, size_t size, bool sendStop)
     {
         size = BUFFER_LENGTH;
     }
-    size_t read = (twi_readFrom(address, rxBuffer, size, sendStop) == 0) ? size : 0;
+    assert(("__func__", 0));
+    size_t read = /*(twi_readFrom(address, rxBuffer, size, sendStop) == 0) ? size :*/ 0;
     rxBufferIndex = 0;
     rxBufferLength = read;
     return read;
@@ -188,10 +190,10 @@ uint8_t TwoWire::endTransmission(uint8_t sendStop)
 		    ret = wiringPiI2CWriteReg8(fd, txBuffer[0], txBuffer[1]);
 		    break;
 	    case 3:
-		    ret = wiringPiI2CWriteReg16(fd, txBuffer[0], (int)txBuffer[1] | ((int)txBufferLength[2] << 8));
+		    ret = wiringPiI2CWriteReg16(fd, txBuffer[0], txBuffer[1] | (txBuffer[2] << 8));
 		    break;
 	    default:
-		    printf("%s ERROR: Unsuported length %u\n", __func__, txBufferLength);
+		    assert(txBufferLength <= 3);
 
     }
     txBufferIndex = 0;
@@ -330,13 +332,15 @@ void TwoWire::onReceive(void (*function)(int))
 void TwoWire::onReceive(void (*function)(size_t))
 {
     user_onReceive = function;
-    twi_enableSlaveMode();
+    assert(("__func__", 0));
+    //twi_enableSlaveMode();
 }
 
 void TwoWire::onRequest(void (*function)(void))
 {
     user_onRequest = function;
-    twi_enableSlaveMode();
+    assert(("__func__", 0));
+    //twi_enableSlaveMode();
 }
 
 // Preinstantiate Objects //////////////////////////////////////////////////////
