@@ -22,6 +22,7 @@
     Modified January 2017 by Bjorn Hammarberg (bjoham@esp8266.com) - i2c slave support
 */
 
+#include <cstddef>
 extern "C" {
 #include <stdlib.h>
 #include <string.h>
@@ -138,11 +139,46 @@ size_t TwoWire::requestFrom(uint8_t address, size_t size, bool sendStop)
     {
         size = BUFFER_LENGTH;
     }
-    assert(("__func__", 0));
-    size_t read = /*(twi_readFrom(address, rxBuffer, size, sendStop) == 0) ? size :*/ 0;
+
+    // TODO check how it is implemented for other i2c sensors supported by wiringPi
+    // TODO double check that only i2c address is sent and 2 bytes are read
+    // No register address has to be sent
+    // https://github.com/allwinner-zh/linux-3.4-sunxi/blob/master/drivers/hwmon/ina219.c
+    // i2c_smbus_read_word_swapped()
+    // i2c_smbus_read_word_data()
+    // i2c_smbus_xfer(client->adapter, client->addr, client->flags,
+	//			I2C_SMBUS_READ, command,
+	//			I2C_SMBUS_WORD_DATA, &data);
+    // https://elixir.bootlin.com/linux/v4.1/source/drivers/i2c/i2c-core.c#L2541
+    // See also https://github.com/adafruit/Adafruit_Python_PureIO/blob/master/Adafruit_PureIO/smbus.py#L212
+    int ret = -1;
+    switch (size) {
+        case 1:
+            ret = wiringPiI2CReadReg8(fd, 0);
+            break;
+        case 2:
+            ret = wiringPiI2CReadReg16(fd, 0);
+            break;
+        default:
+            assert("NOT SUPPORTED" && 0);
+    }
+
     rxBufferIndex = 0;
-    rxBufferLength = read;
-    return read;
+    rxBufferLength = 0;
+    if (ret >= 0)
+    {
+        for (size_t i=0; i<size; i++) {
+            rxBuffer[0] = ret & 0xFF;
+            ret >>= 8;
+        }
+        rxBufferLength = size;
+
+        return size;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop)
@@ -193,7 +229,7 @@ uint8_t TwoWire::endTransmission(uint8_t sendStop)
 		    ret = wiringPiI2CWriteReg16(fd, txBuffer[0], txBuffer[1] | (txBuffer[2] << 8));
 		    break;
 	    default:
-		    assert(txBufferLength <= 3);
+		    assert("NOT SUPPORTED" && 0);
 
     }
     txBufferIndex = 0;
@@ -332,14 +368,14 @@ void TwoWire::onReceive(void (*function)(int))
 void TwoWire::onReceive(void (*function)(size_t))
 {
     user_onReceive = function;
-    assert(("__func__", 0));
+    assert("NOT SUPPORTED" && 0);
     //twi_enableSlaveMode();
 }
 
 void TwoWire::onRequest(void (*function)(void))
 {
     user_onRequest = function;
-    assert(("__func__", 0));
+    assert("NOT SUPPORTED" && 0);
     //twi_enableSlaveMode();
 }
 

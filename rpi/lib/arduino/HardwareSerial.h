@@ -122,7 +122,7 @@ public:
     {
     }
 
-    int available(void) override {}
+    int available(void) override { return 0; }
 
     int peek(void) override
     {
@@ -139,7 +139,7 @@ public:
     {
         return 0;
     }
-    size_t readBytes(char* buffer, size_t size) override {}
+    size_t readBytes(char* buffer, size_t size) override { return 0; }
     size_t readBytes(uint8_t* buffer, size_t size) override
     {
         return readBytes((char*)buffer, size);
@@ -188,9 +188,9 @@ public:
 
     void startDetectBaudrate() {}
 
-    unsigned long testBaudrate() {}
+    // TODO unsigned long testBaudrate();
 
-    unsigned long detectBaudrate(time_t timeoutMillis) {}
+    // TODO unsigned long detectBaudrate(time_t timeoutMillis);
 };
 
 extern HardwareSerial Serial;
