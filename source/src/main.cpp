@@ -13,6 +13,7 @@
 #include "SoftwareWatchdog.h"
 #include "ADCReader.hpp"
 #include "MPPT.hpp"
+#include "MPPTSigmaDeltaOutput.hpp"
 
 static const char AP_SSID[] = "MPPTCharger";
 static const char AP_PASSWORD[] = "zweiundvierzig";
@@ -34,7 +35,8 @@ ADCReader adcs;
 INA219Calc ina219;
 /* GPIO12 is connected to dead time control of TL494 */
 const uint8_t TL494_DTC_PIN = 12;
-MPPT mppt(TL494_DTC_PIN);
+MPPTSigmaDeltaOutput mpptOutput(TL494_DTC_PIN);
+MPPT mppt(mpptOutput);
 WriteBufferingStream telnet(TelnetStream, 160);
 
 

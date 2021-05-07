@@ -1,4 +1,5 @@
 #include "MPPT.hpp"
+#include "IMPPTOutput.hpp"
 
 void MPPT::update(const float voltage, const float power)
 {
@@ -9,7 +10,7 @@ void MPPT::update(const float voltage, const float power)
 	/* always 1 W + 3% of current power */
 	const float hysteresis = 0.1;
 
-	if (voltage < 10.0 || pwm > (maxPWM - PWM_UPDATE_DIFF))
+	if (voltage < 10.0 || pwm > (IMPPTOutput::maxValue - PWM_UPDATE_DIFF))
 		increase = false;
 	else if (pwm < PWM_UPDATE_DIFF)
 		increase = true;
@@ -30,7 +31,6 @@ void MPPT::update(const float voltage, const float power)
 			pwm -= PWM_UPDATE_DIFF;
 	}
 
-	/* inverted logic */
-	sigmaDeltaWrite(SIGMA_DELTA_CHANNEL, maxPWM - pwm);
+	output.write(pwm);
 }
 
