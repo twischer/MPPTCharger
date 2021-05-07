@@ -2,13 +2,14 @@
 //#include <wiringPi.h>
 #include <Arduino.h>
 #include <INA219.h>
-
+#include <MPPT.hpp>
 
 // LED Pin - wiringPi pin 0 is BCM_GPIO 17.
 
 #define	LED	0
 
 INA219 monitor;
+MPPT mppt;
 
 int main (void)
 {
