@@ -36,7 +36,7 @@ int Stream::timedRead() {
             return c;
         if(_timeout == 0)
             return -1;
-	assert(("__func__", 0));
+	assert("HIGH CPU LOAD" && 0);
         // TODO yield();
     } while(millis() - _startMillis < _timeout);
     return -1;     // -1 indicates timeout
@@ -52,7 +52,7 @@ int Stream::timedPeek() {
             return c;
         if(_timeout == 0)
             return -1;
-        assert(("__func__", 0));
+        assert("HIGH CPU LOAD" && 0);
         // TODO yield();
     } while(millis() - _startMillis < _timeout);
     return -1;     // -1 indicates timeout

@@ -92,7 +92,7 @@ public:
 
     void updateBaudRate(unsigned long baud) {}
 
-    size_t setRxBufferSize(size_t size) {}
+    // TODO size_t setRxBufferSize(size_t size) {}
     size_t getRxBufferSize()
     {
         return 0;
