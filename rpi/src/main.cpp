@@ -1,14 +1,11 @@
 #include <stdio.h>
-//#include <wiringPi.h>
 #include <Arduino.h>
-//#include <INA219.h>
-//#include <MPPT.hpp>
+#include <INA219.h>
+#include <MPPT.hpp>
 #include <MPPTPWMOutput.hpp>
 
-/* Connected to pin 12 on pin header */
+/* Connected to pin 12 on pin header (PWM0) */
 #define GPIO18	18
-
-//INA219 monitor;
 
 int main (void)
 {
@@ -18,9 +15,9 @@ int main (void)
 		exit (1);
 
 	MPPTPWMOutput mpptOutput(GPIO18);
-	mpptOutput.write(128);
+	MPPT mppt(mpptOutput);
 
-//	MPPT mppt(mpptOutput);
+	INA219 monitor;
 /*	monitor.begin();
 
 	Serial.print("raw shunt voltage: ");
@@ -49,11 +46,11 @@ int main (void)
 */
 	for (;;)
 	{
-/*		mppt.update(12, 5);
+		mppt.update(12, 5);
 		Serial.print("PWM: ");
 		Serial.println(mppt.getPwmLevel());
-*/
-		delay (500) ;
+
+		delay (100) ;
 	}
 	return 0 ;
 }
