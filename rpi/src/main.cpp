@@ -1,25 +1,27 @@
 #include <stdio.h>
 //#include <wiringPi.h>
 #include <Arduino.h>
-#include <INA219.h>
-#include <MPPT.hpp>
+//#include <INA219.h>
+//#include <MPPT.hpp>
 #include <MPPTPWMOutput.hpp>
 
-// LED Pin - wiringPi pin 0 is BCM_GPIO 17.
+/* Connected to pin 12 on pin header */
+#define GPIO18	18
 
-#define	LED	0
-
-INA219 monitor;
-MPPTPWMOutput mpptOutput(LED);
-MPPT mppt(mpptOutput);
+//INA219 monitor;
 
 int main (void)
 {
 	printf ("Raspberry Pi blink\n") ;
 
-	wiringPiSetup () ;
-	pinMode (LED, OUTPUT) ;
-	monitor.begin();
+	if (wiringPiSetupGpio() == -1)
+		exit (1);
+
+	MPPTPWMOutput mpptOutput(GPIO18);
+	mpptOutput.write(128);
+
+//	MPPT mppt(mpptOutput);
+/*	monitor.begin();
 
 	Serial.print("raw shunt voltage: ");
 	Serial.println(monitor.shuntVoltageRaw());
@@ -44,12 +46,13 @@ int main (void)
 	Serial.print("bus power:     ");
 	Serial.print(monitor.busPower() * 1000, 4);
 	Serial.println(" mW");
-
+*/
 	for (;;)
 	{
-		digitalWrite (LED, HIGH) ;	// On
-		delay (500) ;		// mS
-		digitalWrite (LED, LOW) ;	// Off
+/*		mppt.update(12, 5);
+		Serial.print("PWM: ");
+		Serial.println(mppt.getPwmLevel());
+*/
 		delay (500) ;
 	}
 	return 0 ;
