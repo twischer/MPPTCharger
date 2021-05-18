@@ -5,22 +5,22 @@
 #include <MPPTPWMOutput.hpp>
 
 /* Connected to pin 12 on pin header (PWM0) */
-#define GPIO18	18
+#define GPIO18	1
 
 int main (void)
 {
 	printf ("Raspberry Pi blink\n") ;
 
-	if (wiringPiSetupGpio() == -1)
+	if (wiringPiSetup() == -1)
 		exit (1);
 
 	MPPTPWMOutput mpptOutput(GPIO18);
 	MPPT mppt(mpptOutput);
 
 	INA219 monitor;
-/*	monitor.begin();
+	monitor.begin();
 
-	Serial.print("raw shunt voltage: ");
+/*	Serial.print("raw shunt voltage: ");
 	Serial.println(monitor.shuntVoltageRaw());
 
 	Serial.print("raw bus voltage:   ");
