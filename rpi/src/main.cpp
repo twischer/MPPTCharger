@@ -20,7 +20,7 @@ int main (void)
 	INA219 monitor;
 	monitor.begin();
 
-/*	Serial.print("raw shunt voltage: ");
+	Serial.print("raw shunt voltage: ");
 	Serial.println(monitor.shuntVoltageRaw());
 
 	Serial.print("raw bus voltage:   ");
@@ -43,7 +43,7 @@ int main (void)
 	Serial.print("bus power:     ");
 	Serial.print(monitor.busPower() * 1000, 4);
 	Serial.println(" mW");
-*/
+
 	for (;;)
 	{
 		mppt.update(12, 5);
