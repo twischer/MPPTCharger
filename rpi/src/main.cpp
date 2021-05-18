@@ -17,7 +17,7 @@ int main (void)
 	MPPTPWMOutput mpptOutput(GPIO18);
 	MPPT mppt(mpptOutput);
 
-	INA219 monitor;
+/*	INA219 monitor;
 	monitor.begin();
 
 	Serial.print("raw shunt voltage: ");
@@ -42,15 +42,19 @@ int main (void)
 
 	Serial.print("bus power:     ");
 	Serial.print(monitor.busPower() * 1000, 4);
-	Serial.println(" mW");
+	Serial.println(" mW");*/
 
 	for (;;)
 	{
-		mppt.update(12, 5);
+		float voltage = 0.0;
+		float power = 0.0;
+		scanf("%f %f\n", &voltage, &power);
+		mppt.update(voltage, power);
 		Serial.print("PWM: ");
 		Serial.println(mppt.getPwmLevel());
 
-		delay (100) ;
+		/* waiting 100ms */
+		//delay (100) ;
 	}
 	return 0 ;
 }
