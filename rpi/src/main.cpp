@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <iostream>
+#include <string>
 #include <Arduino.h>
 #include <INA219.h>
 #include <MPPT.hpp>
@@ -46,9 +48,15 @@ int main (void)
 
 	for (;;)
 	{
-		float voltage = 0.0;
-		float power = 0.0;
-		scanf("%f %f\n", &voltage, &power);
+		/* Accepts input lines of "N.M O.P" where N,M,O,P are numbers */
+		std::string voltageStr;
+		std::getline(std::cin, voltageStr, ' ');
+		const float voltage = std::stof(voltageStr);
+
+		std::string powerStr;
+		std::getline(std::cin, powerStr);
+		const float power = std::stof(powerStr);
+
 		mppt.update(voltage, power);
 		Serial.print("PWM: ");
 		Serial.println(mppt.getPwmLevel());
