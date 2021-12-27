@@ -1,5 +1,4 @@
 #include "ADCReader.hpp"
-#include <TelnetStream2.h>
 
 const ADCReader::adc2unit_t ADCReader::adc2unit[ADC_MAX] = {
 	[ADC_CURRENT_IN] = {
